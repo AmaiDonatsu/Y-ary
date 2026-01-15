@@ -4,8 +4,22 @@ A TypeScript package.
 
 ## Installation
 
+### From npm registry
+
 ```bash
 pnpm add y-ary
+```
+
+### From GitHub repository
+
+Using **pnpm**:
+```bash
+pnpm add https://github.com/AmaiDonatsu/Y-ary.git
+```
+
+Using **npm**:
+```bash
+npm install https://github.com/AmaiDonatsu/Y-ary.git
 ```
 
 ## Usage
