@@ -1,6 +1,6 @@
 # Y-ary
 
-A TypeScript package.
+<img src="./res/banner.webp" width="50%" alt="Y-ary Banner">
 
 ## Installation
 
