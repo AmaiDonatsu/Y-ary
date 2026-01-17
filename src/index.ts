@@ -10,5 +10,11 @@ export function hello(name: string): string {
 // Export formula interpreter
 export { formulaInterpreter } from './formulas/formulaInterpreter';
 
+// Export array generation
+export { arrayWithBankNums } from './algorithms/arrayGens';
+
+// Export all array validation rules
+export * from './algorithms/arrayRules';
+
 // Export types
 export type { };
