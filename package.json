@@ -1,7 +1,7 @@
 {
   "name": "y-ary",
   "version": "0.0.2",
-  "description": "Y-ary package",
+  "description": "Experimental TypeScript math library: Formula interpreter + smart array generation with 30+ validation rules",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -19,7 +19,9 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup",
@@ -27,8 +29,28 @@
     "prepublishOnly": "pnpm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "typescript",
+    "mathematics",
+    "formula-parser",
+    "formula-interpreter",
+    "array-generation",
+    "random",
+    "validation",
+    "experimental",
+    "matrix",
+    "math-library",
+    "dynamic-evaluation"
+  ],
+  "author": "AmaiDonatsu",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AmaiDonatsu/Y-ary.git"
+  },
+  "homepage": "https://github.com/AmaiDonatsu/Y-ary#readme",
+  "bugs": {
+    "url": "https://github.com/AmaiDonatsu/Y-ary/issues"
+  },
   "license": "MIT",
   "devDependencies": {},
   "packageManager": "pnpm@10.15.1"
