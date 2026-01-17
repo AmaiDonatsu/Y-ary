@@ -1,0 +1,38 @@
+🧪 Test de Matriz 6x3 con Reglas Complejas
+============================================================
+
+✅ Matriz generada:
+
+Fila 1: [3, 5, 5]
+Fila 2: [3, 6, 6]
+Fila 3: [6, 4, 1]
+Fila 4: [1, 3, 5]
+Fila 5: [2, 2, 4]
+Fila 6: [2, 4, 1]
+
+📊 Ocurrencias:
+Número 1: 3 veces
+Número 2: 3 veces
+Número 3: 3 veces
+Número 4: 3 veces
+Número 5: 3 veces
+Número 6: 3 veces
+
+✓ Verificación de consecutivos en filas:
+Fila 1: ✅ OK
+Fila 2: ✅ OK
+Fila 3: ✅ OK
+Fila 4: ✅ OK
+Fila 5: ✅ OK
+Fila 6: ✅ OK
+
+✓ Verificación de filas consecutivas con mismo número:
+Número 1: máximo 2 filas consecutivas ✅
+Número 2: máximo 2 filas consecutivas ✅
+Número 3: máximo 2 filas consecutivas ✅
+Número 4: máximo 2 filas consecutivas ✅
+Número 5: máximo 1 filas consecutivas ✅
+Número 6: máximo 2 filas consecutivas ✅
+
+============================================================
+🎉 TEST COMPLETADO

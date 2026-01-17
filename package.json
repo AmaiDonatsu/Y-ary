@@ -52,6 +52,8 @@
     "url": "https://github.com/AmaiDonatsu/Y-ary/issues"
   },
   "license": "MIT",
-  "devDependencies": {},
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  },
   "packageManager": "pnpm@10.15.1"
 }
