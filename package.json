@@ -1,6 +1,6 @@
 {
   "name": "y-ary",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Experimental TypeScript math library: Formula interpreter + smart array generation with 30+ validation rules",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -52,8 +52,6 @@
     "url": "https://github.com/AmaiDonatsu/Y-ary/issues"
   },
   "license": "MIT",
-  "devDependencies": {
-    "tsx": "^4.21.0"
-  },
+  "devDependencies": {},
   "packageManager": "pnpm@10.15.1"
 }
