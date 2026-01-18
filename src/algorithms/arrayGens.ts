@@ -17,31 +17,6 @@
  * 
  * @returns A 1D array or 2D array (matrix) of numbers randomly selected from bankNums,
  *          respecting occurrence limits and any extra validation rules.
- * 
- * @example
- * // Generate 1D array of length 5
- * const result1D = arrayWithBankNums(
- *   { 1: 3, 2: 3, 3: 3, 4: 3, 5: 3, 6: 3, 7: 3, 8: 3, 9: 3, 10: 3 },
- *   [5]
- * );
- * // Possible result: [3, 7, 1, 9, 2]
- * 
- * @example
- * // Generate 2D array (matrix) of 3 rows x 4 columns
- * const result2D = arrayWithBankNums(
- *   { 1: 3, 2: 3, 3: 3, 4: 3, 5: 3, 6: 3 },
- *   [3, 4]
- * );
- * // Possible result: [[1, 3, 2, 5], [4, 1, 6, 3], [2, 5, 4, 6]]
- * 
- * @example
- * // With extraRules: only allow even numbers
- * const result = arrayWithBankNums(
- *   { 1: 3, 2: 3, 3: 3, 4: 3, 5: 3, 6: 3 },
- *   [4],
- *   (num, arr) => num % 2 === 0
- * );
- * // Possible result: [2, 4, 6, 2]
  */
 const arrayWithBankNums = (
     bankNums: { [n: number]: number },
@@ -141,14 +116,6 @@ function shuffleArray<T>(array: T[]): T[] {
  *   Returns true to allow the number, false to reject it.
  * 
  * @returns A 1D array or 2D array (matrix) with ascending numbers per row.
- * 
- * @example
- * // Generate 2D array with ascending order per row
- * const result = orderedArrayWithBankNums(
- *   { 1: 3, 2: 3, 3: 3, 4: 3, 5: 3, 6: 3 },
- *   [6, 3]
- * );
- * // Possible result: [[1,3,5], [2,4,6], [1,4,5], ...]
  */
 const orderedArrayWithBankNums = (
     bankNums: { [n: number]: number },
@@ -229,4 +196,51 @@ const orderedArrayWithBankNums = (
     return result;
 };
 
-export { arrayWithBankNums, orderedArrayWithBankNums };
+/**
+ * Decompresses a single row of indices into a boolean array.
+ * Indices are 1-based: [1, 3, 5] with size 6 → [true, false, true, false, true, false]
+ * 
+ * @param compressedRow - Array of indices (1-based) representing positions with `true` value
+ * @param size - The total size of the decompressed array
+ * @returns Array of booleans where positions indicated by indices are `true`
+ * 
+ * @example
+ * decompressRow([3, 5, 6], 6)
+ * // Returns: [false, false, true, false, true, true]
+ * 
+ * @example
+ * decompressRow([1, 3, 6], 6)
+ * // Returns: [true, false, true, false, false, true]
+ */
+const decompressRow = (compressedRow: number[], size: number): boolean[] => {
+    const result: boolean[] = new Array(size).fill(false);
+    for (const index of compressedRow) {
+        if (index >= 1 && index <= size) {
+            result[index - 1] = true;
+        }
+    }
+    return result;
+};
+
+/**
+ * Decompresses an entire matrix of compressed rows into a matrix of boolean arrays.
+ * 
+ * @param compressedMatrix - 2D array where each row contains indices (1-based)
+ * @param rowSize - The size of each decompressed row
+ * @returns 2D array of booleans
+ * 
+ * @example
+ * const compressed = [[3, 5, 6], [1, 3, 6], [1, 4, 5]];
+ * decompressMatrix(compressed, 6)
+ * // Returns:
+ * // [
+ * //   [false, false, true, false, true, true],
+ * //   [true, false, true, false, false, true],
+ * //   [true, false, false, true, true, false]
+ * // ]
+ */
+const decompressMatrix = (compressedMatrix: number[][], rowSize: number): boolean[][] => {
+    return compressedMatrix.map(row => decompressRow(row, rowSize));
+};
+
+export { arrayWithBankNums, orderedArrayWithBankNums, decompressRow, decompressMatrix };
