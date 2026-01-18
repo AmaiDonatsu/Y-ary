@@ -273,3 +273,180 @@ La función tiene un límite de 1000 intentos por posición. Si tus reglas son m
 - [Lista completa de reglas pre-construidas](../array-docs.md)
 - [Documentación de API](../basic-docs.md)
 - [Tests de ejemplo](../../test/arrayTest.ts)
+
+
+## orderedArrayWithBankNums
+### Arrays Descomprimibles y Descompresión
+
+Esta sección explica cómo generar **arrays comprimidos** con `orderedArrayWithBankNums` y descomprimirlos con `decompressRow` y `decompressMatrix`.
+
+---
+
+### ¿Qué es un Array Comprimido?
+
+Un array comprimido almacena **índices** (1-based) que representan posiciones con valor `true` en un array binario. Esto reduce significativamente el espacio de almacenamiento.
+
+**Ejemplo:**
+```
+Comprimido:   [1, 3, 5]     (3 números)
+Descomprimido: [true, false, true, false, true, false]  (6 booleanos)
+```
+
+---
+
+### Funciones Disponibles
+
+```typescript
+import { 
+    orderedArrayWithBankNums,  // Genera arrays comprimidos
+    decompressRow,             // Descomprime una fila
+    decompressMatrix           // Descomprime matriz completa
+} from 'y-ary';
+```
+
+---
+
+### Ejemplo Completo: Matriz de Índices Binary
+
+**Objetivo:** Crear una matriz 6x3 donde cada fila representa índices de un array binario de tamaño 6.
+
+#### Paso 1: Definir las Reglas
+
+```typescript
+import { orderedArrayWithBankNums, decompressMatrix, and, type ArrayRule } from 'y-ary';
+
+const ROW_SIZE = 3;
+
+// Helpers
+const getRow = (len: number) => Math.floor(len / ROW_SIZE);
+const getPosInRow = (len: number) => len % ROW_SIZE;
+
+// Regla: No repetir números en la misma fila
+const noRepeatInRow: ArrayRule = (num, arr) => {
+    const pos = getPosInRow(arr.length);
+    if (pos === 0) return true;
+    const rowStart = getRow(arr.length) * ROW_SIZE;
+    return !arr.slice(rowStart).includes(num);
+};
+
+// Regla: No 3 números consecutivos (ej: 1,2,3)
+const noThreeConsecutive: ArrayRule = (num, arr) => {
+    const pos = getPosInRow(arr.length);
+    if (pos < 2) return true;
+    const start = getRow(arr.length) * ROW_SIZE;
+    return !(arr[start + 1] === arr[start] + 1 && num === arr[start + 1] + 1);
+};
+
+// Regla: Diferencia máxima de 4 entre consecutivos
+const maxDiff4: ArrayRule = (num, arr) => {
+    const pos = getPosInRow(arr.length);
+    if (pos === 0) return true;
+    return Math.abs(num - arr[arr.length - 1]) <= 4;
+};
+
+// Combinar reglas
+const rules = and([noRepeatInRow, noThreeConsecutive, maxDiff4]);
+```
+
+#### Paso 2: Generar la Matriz Comprimida
+
+```typescript
+const compressedMatrix = orderedArrayWithBankNums(
+    { 1: 3, 2: 3, 3: 3, 4: 3, 5: 3, 6: 3 }, // Cada número máximo 3 veces
+    [6, 3],                                  // 6 filas x 3 columnas
+    rules
+);
+
+console.log('Matriz Comprimida:', compressedMatrix);
+// Resultado ejemplo:
+// [[3, 4, 6], [3, 5, 6], [1, 2, 5], [2, 4, 6], [1, 3, 5], [1, 2, 4]]
+```
+
+#### Paso 3: Descomprimir la Matriz
+
+```typescript
+// Descomprimir toda la matriz
+const booleanMatrix = decompressMatrix(compressedMatrix, 6);
+
+console.log('Matriz Descomprimida:');
+booleanMatrix.forEach((row, i) => {
+    console.log(`Fila ${i + 1}:`, row);
+});
+// Resultado:
+// Fila 1: [false, false, true, true, false, true]
+// Fila 2: [false, false, true, false, true, true]
+// ...
+```
+
+---
+
+### API de Descompresión
+
+#### `decompressRow(compressedRow, size)`
+
+Descomprime una sola fila de índices a array de booleanos.
+
+```typescript
+import { decompressRow } from 'y-ary';
+
+const compressed = [1, 3, 6];
+const decompressed = decompressRow(compressed, 6);
+// → [true, false, true, false, false, true]
+
+// Índice 1 → posición 0 = true
+// Índice 3 → posición 2 = true  
+// Índice 6 → posición 5 = true
+```
+
+#### `decompressMatrix(compressedMatrix, rowSize)`
+
+Descomprime una matriz completa.
+
+```typescript
+import { decompressMatrix } from 'y-ary';
+
+const compressed = [
+    [1, 3, 5],
+    [2, 4, 6],
+    [1, 4, 5]
+];
+
+const decompressed = decompressMatrix(compressed, 6);
+// [
+//   [true, false, true, false, true, false],
+//   [false, true, false, true, false, true],
+//   [true, false, false, true, true, false]
+// ]
+```
+
+---
+
+### Diferencia con `arrayWithBankNums`
+
+| Característica | `arrayWithBankNums` | `orderedArrayWithBankNums` |
+|----------------|---------------------|---------------------------|
+| Selección | Aleatoria | Ordenada + Backtracking |
+| Orden en fila | No garantizado | **Ascendente garantizado** |
+| Para arrays binarios | ❌ | ✅ |
+| Reglas complejas | Limitado | ✅ Soporta todas |
+
+---
+
+### Casos de Uso
+
+1. **Almacenamiento eficiente**: Guardar 3 índices en lugar de 6 booleanos
+2. **Compresión de datos binarios**: Matrices de presencia/ausencia
+3. **Generación de patrones**: Crear patrones únicos con restricciones
+4. **Ejercicios de memoria**: Generar secuencias para juegos cognitivos
+
+---
+
+### Notas Importantes
+
+> **⚠️ Los índices son 1-based**
+> - `[1, 3, 5]` se refiere a posiciones 1, 3 y 5 (no 0, 2, 4)
+> - Al descomprimir, índice 1 → posición 0, índice 2 → posición 1, etc.
+
+> **💡 Backtracking Automático**
+> - `orderedArrayWithBankNums` usa backtracking para encontrar soluciones válidas
+> - Si las restricciones son muy estrictas, puede intentar hasta 50 combinaciones diferentes
