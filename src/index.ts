@@ -11,7 +11,7 @@ export function hello(name: string): string {
 export { formulaInterpreter } from './formulas/formulaInterpreter';
 
 // Export array generation
-export { arrayWithBankNums } from './algorithms/arrayGens';
+export { arrayWithBankNums, orderedArrayWithBankNums } from './algorithms/arrayGens';
 
 // Export all array validation rules
 export * from './algorithms/arrayRules';

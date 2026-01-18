@@ -48,60 +48,44 @@ const arrayWithBankNums = (
     dims: number[],
     extraRules?: (candidateNum: number, currentArray: number[]) => boolean
 ): number[] | number[][] => {
-    // Determine if we're creating a 1D or 2D array
     const is2D = dims.length === 2;
     const totalElements = is2D ? dims[0] * dims[1] : dims[0];
 
     const flatArray: number[] = [];
-
-    // Track how many times each number has been used
     const usageCount: { [n: number]: number } = {};
-
-    // Get available numbers from bankNums
     const availableNumbers = Object.keys(bankNums).map(Number);
 
-    // Build flat array up to the total number of elements needed
     for (let i = 0; i < totalElements; i++) {
         let candidateNum: number | null = null;
         let attempts = 0;
-        const maxAttempts = 1000; // Prevent infinite loops
+        const maxAttempts = 1000;
 
-        // Try to find a valid number
         while (candidateNum === null && attempts < maxAttempts) {
             attempts++;
-
-            // Select a random number from available numbers
             const randomIndex = Math.floor(Math.random() * availableNumbers.length);
             const selectedNum = availableNumbers[randomIndex];
-
-            // Check if this number hasn't exceeded its limit
             const currentUsage = usageCount[selectedNum] || 0;
             const maxUsage = bankNums[selectedNum];
 
             if (currentUsage >= maxUsage) {
-                continue; // This number is exhausted, try another
+                continue;
             }
 
-            // Apply extra rules if provided
             const passesExtraRules = extraRules ? extraRules(selectedNum, flatArray) : true;
-
             if (passesExtraRules) {
                 candidateNum = selectedNum;
             }
         }
 
-        // If we found a valid number, add it to the array
         if (candidateNum !== null) {
             flatArray.push(candidateNum);
             usageCount[candidateNum] = (usageCount[candidateNum] || 0) + 1;
         } else {
-            // Could not find a valid number after max attempts
             console.warn(`Could not find valid number at position ${i} after ${maxAttempts} attempts`);
             break;
         }
     }
 
-    // If 2D array requested, reshape the flat array into a matrix
     if (is2D) {
         const rows = dims[0];
         const cols = dims[1];
@@ -117,12 +101,132 @@ const arrayWithBankNums = (
             }
             matrix.push(rowArray);
         }
-
         return matrix;
     }
 
-    // Return 1D array
     return flatArray;
 };
 
-export { arrayWithBankNums };
+/**
+ * Fisher-Yates shuffle algorithm
+ */
+function shuffleArray<T>(array: T[]): T[] {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+/**
+ * Generates an array or matrix with ORDERED selection from a bank of numbers.
+ * Unlike arrayWithBankNums (which selects randomly), this function uses backtracking
+ * to ensure ascending order within each row while respecting all constraints.
+ * 
+ * Key difference: Each row starts fresh for ordering purposes, allowing patterns like:
+ * - Row 1: [1, 4, 5]
+ * - Row 2: [1, 2, 5]  (starts from 1 again, not continuation)
+ * 
+ * @param bankNums - Object where keys are the numbers to use and values are the maximum 
+ *                   number of times each number can appear in the array.
+ * 
+ * @param dims - Array dimensions:
+ *   - [length]: Creates a 1D array with the specified length
+ *   - [rows, cols]: Creates a 2D array (matrix) with the specified rows and columns
+ * 
+ * @param extraRules - Optional validation callback that receives:
+ *   - candidateNum: The number being considered for addition
+ *   - currentArray: The flattened array built so far
+ *   - rowSize: The size of each row (for 2D arrays) or total length (for 1D)
+ *   Returns true to allow the number, false to reject it.
+ * 
+ * @returns A 1D array or 2D array (matrix) with ascending numbers per row.
+ * 
+ * @example
+ * // Generate 2D array with ascending order per row
+ * const result = orderedArrayWithBankNums(
+ *   { 1: 3, 2: 3, 3: 3, 4: 3, 5: 3, 6: 3 },
+ *   [6, 3]
+ * );
+ * // Possible result: [[1,3,5], [2,4,6], [1,4,5], ...]
+ */
+const orderedArrayWithBankNums = (
+    bankNums: { [n: number]: number },
+    dims: number[],
+    extraRules?: (candidateNum: number, currentArray: number[], rowSize: number) => boolean
+): number[] | number[][] => {
+    const is2D = dims.length === 2;
+    const rowSize = is2D ? dims[1] : dims[0];
+    const totalElements = is2D ? dims[0] * dims[1] : dims[0];
+
+    const sortedNumbers = Object.keys(bankNums).map(Number).sort((a, b) => a - b);
+
+    // Recursive backtracking solver
+    function solve(
+        flatArray: number[],
+        usageCount: { [n: number]: number }
+    ): number[] | null {
+        if (flatArray.length === totalElements) {
+            return flatArray;
+        }
+
+        const posInRow = flatArray.length % rowSize;
+        const minValue = posInRow === 0 ? -Infinity : flatArray[flatArray.length - 1];
+
+        const candidates = sortedNumbers.filter(num => {
+            const usage = usageCount[num] || 0;
+            return usage < bankNums[num] && num > minValue;
+        });
+
+        const shuffled = shuffleArray([...candidates]);
+
+        for (const num of shuffled) {
+            if (extraRules && !extraRules(num, flatArray, rowSize)) {
+                continue;
+            }
+
+            const newArray = [...flatArray, num];
+            const newUsage = { ...usageCount, [num]: (usageCount[num] || 0) + 1 };
+
+            const result = solve(newArray, newUsage);
+            if (result !== null) {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    let result: number[] | null = null;
+    for (let attempt = 0; attempt < 50 && result === null; attempt++) {
+        result = solve([], {});
+    }
+
+    if (result === null) {
+        console.warn('Could not generate valid array with given constraints');
+        result = [];
+    }
+
+    if (is2D && result.length > 0) {
+        const matrix: number[][] = [];
+        const cols = dims[1];
+
+        for (let row = 0; row < dims[0]; row++) {
+            const rowArray: number[] = [];
+            for (let col = 0; col < cols; col++) {
+                const index = row * cols + col;
+                if (index < result.length) {
+                    rowArray.push(result[index]);
+                }
+            }
+            if (rowArray.length > 0) {
+                matrix.push(rowArray);
+            }
+        }
+        return matrix;
+    }
+
+    return result;
+};
+
+export { arrayWithBankNums, orderedArrayWithBankNums };
